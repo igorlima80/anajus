@@ -1,0 +1,21 @@
+<!-- Left side column. contains the sidebar -->
+<aside class="main-sidebar">
+  <!-- sidebar: style can be found in sidebar.less -->
+  <section class="sidebar">
+    <!-- sidebar menu: : style can be found in sidebar.less -->
+    <ul class="sidebar-menu" data-widget="tree">
+      <li class="header">MENU PRINCIPAL</li>
+      <% @menu_items.each do |mi| %>
+        <% if can? mi.permission.to_sym, mi.permission_check.to_sym or
+          (Object.const_defined?(mi.permission_check.titleize.gsub(' ', '')) and can? mi.permission.to_sym, mi.permission_check.classify.constantize) %>
+          <li>
+            <%= link_to eval(mi.link) do %>
+              <i class="fa fa-<%= mi.icon %>"></i> <span><%= mi.name %></span>
+            <% end %>
+          </li>
+        <% end %>
+      <% end %>
+    </ul>
+  </section>
+  <!-- /.sidebar -->
+</aside>

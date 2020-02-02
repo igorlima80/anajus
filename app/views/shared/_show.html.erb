@@ -1,0 +1,140 @@
+<% excluded_columns ||= [] %>
+<% nested_resource ||= false %>
+<% relationships ||= {} %>
+<% box_class ||= 'primary' %>
+<% display_mode ||= 'table' %>
+
+<% form_fields ||= (object.class.respond_to?('form_fields') ? object.class.form_fields : {}) %>
+<% form_ordered_fields ||= (form_fields.empty? ? object.class.column_names : form_fields.keys) %>
+
+<div class="box box-<%= box_class %>">
+  <div class="box-header with-border">
+    <h3 class="box-title"><%= object.class.model_name.human %></h3>
+    <% if can? :edit, object %> <!--verificando se o usuario esta logado-->
+      <%= link_to eval_with_rescue("new_#{controller_name.singularize}_path"), class: "btn btn-#{box_class} btn-xs", data: { toggle: 'tooltip', placement: 'top', title: 'Cadastrar' } do %>
+        <i class="fa fa-plus"></i> Cadastrar
+      <% end %>
+    <% end %>
+    <% if can? :edit, object %> <!--verificando se o usuario esta logado-->
+      <%= link_to eval_with_rescue("edit_#{controller_name.singularize}_path(#{object.id})"), class: "btn btn-warning btn-xs", data: { toggle: 'tooltip', placement: 'top', title: 'Editar' } do %>
+        <i class="fa fa-pencil"></i> Editar
+      <% end %>
+    <% end %>
+    <% if nested_resource %>
+      <%= link_to 'Listagem', eval_with_rescue("#{parent_resource.class.model_name.to_s.downcase}_#{controller_name}_path(#{parent_resource.id})"), class: "btn btn-default btn-xs" %>
+    <% else %>
+      <%= link_to 'Listagem', eval_with_rescue("#{controller_name}_path"), class: "btn btn-default btn-xs" %>
+    <% end %>
+  </div>
+  <div class="box-body <%= 'no-padding' if display_mode == 'table' %>">
+    <% if display_mode == 'dt' %>
+      <div class="row">
+        <dl>
+          <% (form_ordered_fields - ['id', 'created_at', 'updated_at', 'deleted_at'] - excluded_columns).each do |column| %>
+            <% wphtml = "col-md-#{(form_fields[column.to_sym].class == Hash ? form_fields[column.to_sym][:size] : form_fields[column.to_sym] ) || 12}" %>
+            <% icon = (form_fields[column.to_sym].class == Hash ? (form_fields[column.to_sym][:icon].blank? ? 'id-card-o' : form_fields[column.to_sym][:icon]) : 'id-card-o') %>
+            <div class="<%= wphtml %>">
+              <dt>
+                <i class="fa fa-<%= icon %> margin-r-5"></i>
+                <% if /_id$/ =~ column && object.respond_to?(column.split('_id')[0]) %>
+                  <%= object.class.human_attribute_name(column.split("_id")[0]) %>
+                <% else %>
+                  <%= object.class.human_attribute_name(column) %>
+                <% end %>
+              </dt>
+              <dd>
+                <% if object.send(column).class == Date or
+                  object.send(column).class == DateTime or
+                  object.send(column).class == ActiveSupport::TimeWithZone or
+                  object.send(column).class == Time %>
+                  <%=l object.send(column) %>
+                <% elsif /_id$/ =~ column && object.respond_to?(column.split('_id')[0]) %>
+                  <%= object.send(column.split("_id")[0])&.name %>
+                <% else %>
+                  <%= object.send(column) %>
+                <% end %>
+                &nbsp;
+              </dd>
+            </div>
+          <% end %>
+        </dl>
+      </div>
+    <% end %>
+    <% if display_mode == 'table' %>
+      <table class="table table-bordered table-striped no-padding datatables">
+        <% (object.class.column_names - ['id', 'created_at', 'updated_at', 'deleted_at'] - excluded_columns).each do |column| %>
+          <tr>
+            <th width='15%'>
+              <% if /_id$/ =~ column && object.respond_to?(column.split('_id')[0]) %>
+                <%= object.class.human_attribute_name(column.split("_id")[0]) %>
+              <% else %>
+                <%= object.class.human_attribute_name(column) %>
+              <% end %>
+            </th>
+            <td>
+              <% if object.send(column).class == Date or
+                object.send(column).class == DateTime or
+                object.send(column).class == ActiveSupport::TimeWithZone or
+                object.send(column).class == Time %>
+                <%=l object.send(column) %>
+              <% elsif /_id$/ =~ column && object.respond_to?(column.split('_id')[0]) %>
+                <%= object.send(column.split("_id")[0])&.name %>
+              <% else %>
+                <%= object.send(column) %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </table>
+    <% end %>
+  </div>
+</div>
+
+<% if relationships.size > 0 %>
+  <% relationships.each do |key, value| %>
+    <div class="box box-<%= box_class %>">
+      <div class="box-header with-border">
+        <h3 class="box-title">
+          <%= Kernel.const_get(key.to_s.singularize.camelize).model_name.human.pluralize %>
+        </h3>
+      </div>
+      <div class="box-body no-padding">
+        <table class="table table-bordered table-striped no-padding datatables">
+          <thead>
+            <tr>
+              <% value.each do |v| %>
+                <th>
+                  <% if /_id$/ =~ v && Kernel.const_get(key.to_s.singularize.camelize).new.respond_to?(v.split('_id')[0]) %>
+                    <%= Kernel.const_get(key.to_s.singularize.camelize).human_attribute_name(v.split('_id')[0]) %>
+                  <% else %>
+                    <%= Kernel.const_get(key.to_s.singularize.camelize).human_attribute_name(v) %>
+                  <% end %>
+                </th>
+              <% end %>
+            </tr>
+          </thead>
+          <tbody>
+            <% object.send(key.to_s).each do |r| %>
+              <tr>
+                <% value.each do |v| %>
+                  <td>
+                    <% if r.send(v).class == Date or
+                      r.send(v).class == DateTime or
+                      r.send(v).class == ActiveSupport::TimeWithZone or
+                      r.send(v).class == Time %>
+                      <%=l r.send(v) %>
+                    <% elsif /_id$/ =~ v && r.respond_to?(v.split('_id')[0]) %>
+                      <%= r.send(v.split("_id")[0])&.name %>
+                    <% else %>
+                      <%= r.send(v) %>
+                    <% end %>
+                  <% end %>
+                </td>
+              <% end %>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% end %>
+<% end %>

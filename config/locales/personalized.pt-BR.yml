@@ -1,0 +1,85 @@
+# encoding: UTF-8
+pt-BR:
+  activerecord:
+    models: &MODELS
+      collaborator: Colaborador     
+      product: Produto     
+      physical_customer: Servidor
+      accreditation_status: Status do Credenciamento
+      address: Endereço      
+      city: Cidade      
+      menu_item: Item de Menu      
+      role: Permissão
+      state: Estado      
+      user: Usuário
+      sex: "Sexo"
+    attributes:
+      name_and_description: &BASIC
+        name: Nome
+        description: Descrição
+        created_at: Criação
+        updated_at: Atualização
+      collaborator:
+        <<: *BASIC
+        <<: *MODELS
+        admission_date: "Data de Admissão"
+        resignation_date: "Data de Demissão"      
+      physical_customer:
+        <<: *BASIC
+        <<: *MODELS  
+        birth_date: "Data de Nascimento"  
+        registration: "Matrícula"
+        observation: "Observação"
+        father_name: "Nome do Pai"
+        mother_name: "Nome da Mãe"
+      address:
+        <<: *BASIC
+        <<: *MODELS
+        street: Logradouro
+        number: Número
+        complement: Complemento
+        district: Bairro
+        zipcode: CEP
+      city:
+        <<: *BASIC
+        <<: *MODELS
+        ibge: IBGE
+      menu_item:
+        <<: *BASIC
+        <<: *MODELS
+        icon: Ícone
+        link: Endereço
+        menu_item: Menu Pai
+        name: Texto
+        permission: Permissão
+        permission_check: Checagem de Permissão
+        position: Posição
+        published: Publicado
+      role:
+        <<: *BASIC
+        <<: *MODELS
+      state:
+        <<: *BASIC
+        <<: *MODELS
+        acronym: Sigla
+        ibge: IBGE
+      user:
+        <<: *BASIC
+        <<: *MODELS
+        password: "Senha"
+  views:
+    pagination:
+      first: "&laquo;"
+      last: "&raquo;"
+      previous: "&lsaquo;"
+      next: "&rsaquo;"
+      truncate: "&hellip;"
+  helpers:
+    page_entries_info:
+      one_page:
+        display_entries:
+          zero: "Nenhum %{entry_name} encontrado(a)"
+          one: "Exibindo <b>1</b> %{entry_name}"
+          other: "Exibindo <b>%{count}</b> %{entry_name}"
+      more_pages:
+        display_entries: "Exibindo %{entry_name} <b>%{first}&nbsp;-&nbsp;%{last}</b> de <b>%{total}</b> no total"

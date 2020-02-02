@@ -1,0 +1,72 @@
+<% exceptions ||= ['created_at', 'updated_at', 'deleted_at'] %>
+<% search_fields ||= [] %>
+<% sort_fields ||= [] %>
+<% sort_all ||= false %>
+<% nested_resource ||= false %>
+<% excluded_columns ||= [] %>
+<% additional_columns ||= [] %>
+<% box_class ||= 'primary' %>
+
+<div class='box box-<%= box_class %>'>
+  <div class="box-header with-border">
+    <h3 class="box-title">
+      <%=t Kernel.const_get(controller_name.singularize.camelize).model_name.human.pluralize %>
+    </h3>
+  </div>
+  <div class="box-body">
+    <% unless search_fields.empty? %>
+      <div class="row">
+        <%= search_form_for @q, url: eval(nested_resource ? "#{parent_resource}_#{controller_name}_path" : "#{controller_name}_path") do |f| %>
+          <% search_fields.each do |sf| %>
+            <%= f.input sf[:field], label: sf[:label], required: false, as: sf[:as], collection: sf[:collection], wrapper_html: { class: 'col-md-3' } %>
+          <% end %>
+          <div class="col-md-3 top-25">
+            <%= f.submit "Pesquisar", class: "btn btn-#{box_class}" %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+    <% if list.empty? %>
+      <table class="table table-striped datatables">
+        <tbody>
+        <tr>
+          <td>Nenhum registro encontrado</td>
+        </tr>
+        </tbody>
+      </table>
+    <% else %>
+    <%= render 'shared/list', list: list, exceptions: exceptions, excluded_columns: excluded_columns,
+      additional_columns: additional_columns, sort_fields: sort_fields, sort_all: sort_all %>
+    <% if defined? list.total_pages %>
+      <div class='col-md-4'>
+        <%= page_entries_info list, entry_name: 'resultado(s)' %>
+      </div>
+      <div class='col-md-8 text-right hidden-xs'>
+        <%= paginate list, window: 4 %>
+      </div>
+      <div class='col-md-8 text-center visible-xs'>
+        <%= paginate list, window: 1 %>
+      </div>
+    <% end %>
+  <% end %>
+  </div>
+
+  <% unless controller_name == 'users' %>
+    <div class="box-footer">
+      <% if can? :new, controller_name.singularize %>
+        <% if nested_resource == true %>
+          <% if parent_resource %>
+            <%= link_to eval("new_#{parent_resource}_#{controller_name.singularize}_path"), class: "btn btn-#{box_class}" do %>
+              <%= t('.new', default: t("helpers.links.new")) %> <%= Kernel.const_get(controller_name.singularize.camelize).model_name.human %> <i class='fa fa-plus'></i>
+            <% end %>
+          <% end %>
+        <% else %>
+          <%= link_to eval("new_#{controller_name.singularize}_path"), class: "btn btn-#{box_class}" do %>
+            <%= t('.new', default: t("helpers.links.new")) %> <%= Kernel.const_get(controller_name.singularize.camelize).model_name.human %> <i class='fa fa-plus'></i>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+
+</div>

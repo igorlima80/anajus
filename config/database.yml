@@ -1,0 +1,22 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: 5
+  host: localhost
+  username: postgres
+  password: cafezim
+
+development:
+  <<: *default
+  database: anajus_development
+
+test:
+  <<: *default
+  database: anajus_test
+
+production:
+ adapter: postgresql
+ encoding: unicode
+ url: <%= ENV['gsystem'] %>
+ encoding: unicode
+ pool: 5
